@@ -1,0 +1,74 @@
+name: Validate messages
+
+on:
+  pull_request:
+    paths:
+      - 'messages.yaml'
+      - 'messages.schema.json'
+      - '.github/workflows/validate.yml'
+
+jobs:
+  validate-yaml:
+    name: Validate YAML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate YAML syntax
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: messages.yaml
+
+  validate-schema:
+    name: Validate YAML schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install validation dependencies
+        run: |
+          pip install pyyaml jsonschema
+
+      - name: Validate schema
+        run: |
+          python <<'PY'
+          import yaml
+          import json
+          from jsonschema import Draft202012Validator, FormatChecker
+
+          with open("messages.yaml", "r") as f:
+              data = yaml.safe_load(f)
+
+          with open("messages.schema.json", "r") as f:
+              schema = json.load(f)
+
+          validator = Draft202012Validator(
+              schema,
+              format_checker=FormatChecker()
+          )
+
+          errors = sorted(
+              validator.iter_errors(data),
+              key=lambda e: list(e.path)
+          )
+
+          if errors:
+              print("Schema validation failed:")
+
+              for error in errors:
+                  path = ".".join(str(p) for p in error.path)
+                  print(f"  {path}: {error.message}")
+
+              raise SystemExit(1)
+
+          print("Schema validation passed.")
+          PY

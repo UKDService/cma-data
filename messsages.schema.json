@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "Messages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "Messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "message",
+          "startDate",
+          "endDate",
+          "excludedDomains",
+          "onlyOnDomain",
+          "isEmergency"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "excludedDomains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "onlyOnDomain": {
+            "type": "string"
+          },
+          "isEmergency": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
