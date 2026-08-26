@@ -2,10 +2,7 @@ name: Validate messages
 
 on:
   pull_request:
-    paths:
-      - 'messages.yaml'
-      - 'messages.schema.json'
-      - '.github/workflows/validate.yml'
+    types: [opened, synchronize, reopened]
 
 jobs:
   validate-yaml:
