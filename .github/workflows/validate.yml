@@ -2,7 +2,12 @@ name: Validate messages
 
 on:
   pull_request:
+    branches:
+      - staging
+      - main
     types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
 
 jobs:
   validate-yaml:
@@ -13,10 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Validate YAML syntax
-        uses: ibiqlik/action-yamllint@v3
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
-          file_or_dir: messages.yaml
+          python-version: "3.x"
+
+      - name: Install YAML parser
+        run: pip install pyyaml
+
+      - name: Validate YAML syntax
+        run: |
+          python <<'PY'
+          import yaml
+
+          with open("messages.yaml", "r") as f:
+              yaml.safe_load(f)
+
+          print("YAML syntax is valid.")
+          PY
+
 
   validate-schema:
     name: Validate YAML schema
@@ -29,7 +49,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install validation dependencies
         run: |
@@ -63,9 +83,117 @@ jobs:
 
               for error in errors:
                   path = ".".join(str(p) for p in error.path)
-                  print(f"  {path}: {error.message}")
+
+                  if path:
+                      print(f"  {path}: {error.message}")
+                  else:
+                      print(f"  {error.message}")
 
               raise SystemExit(1)
 
           print("Schema validation passed.")
+          PY
+
+
+  validate-semantics:
+    name: Validate message semantics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Validate message semantics
+        run: |
+          python <<'PY'
+          import yaml
+          from datetime import datetime, timezone
+
+          with open("messages.yaml", "r") as f:
+              data = yaml.safe_load(f)
+
+          messages = data.get("Messages", [])
+
+          errors = []
+
+          for index, message in enumerate(messages):
+              prefix = f"Messages[{index}]"
+
+              # Parse startDate
+              try:
+                  start_date = datetime.fromisoformat(
+                      message["startDate"].replace("Z", "+00:00")
+                  )
+              except (KeyError, ValueError) as e:
+                  errors.append(
+                      f"{prefix}.startDate is not a valid ISO 8601 datetime"
+                  )
+                  continue
+
+              # Parse endDate
+              try:
+                  end_date = datetime.fromisoformat(
+                      message["endDate"].replace("Z", "+00:00")
+                  )
+              except (KeyError, ValueError) as e:
+                  errors.append(
+                      f"{prefix}.endDate is not a valid ISO 8601 datetime"
+                  )
+                  continue
+
+              # Ensure both dates are timezone-aware
+              if start_date.tzinfo is None:
+                  errors.append(
+                      f"{prefix}.startDate must include a timezone, e.g. Z"
+                  )
+
+              if end_date.tzinfo is None:
+                  errors.append(
+                      f"{prefix}.endDate must include a timezone, e.g. Z"
+                  )
+
+              # End date must not be before start date
+              if end_date < start_date:
+                  errors.append(
+                      f"{prefix}.endDate ({message['endDate']}) "
+                      f"is before startDate ({message['startDate']})"
+                  )
+
+              # Message must not be empty
+              if not str(message.get("message", "")).strip():
+                  errors.append(
+                      f"{prefix}.message must not be empty"
+                  )
+
+              # onlyOnDomain and excludedDomains should not conflict
+              only_on_domain = message.get("onlyOnDomain", "")
+              excluded_domains = message.get("excludedDomains", [])
+
+              if (
+                  only_on_domain
+                  and only_on_domain in excluded_domains
+              ):
+                  errors.append(
+                      f"{prefix}.onlyOnDomain "
+                      f"({only_on_domain}) is also present in "
+                      f"excludedDomains"
+                  )
+
+          if errors:
+              print("Semantic validation failed:")
+              for error in errors:
+                  print(f"  - {error}")
+
+              raise SystemExit(1)
+
+          print("Semantic validation passed.")
           PY
