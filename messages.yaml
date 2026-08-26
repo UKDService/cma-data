@@ -3,13 +3,15 @@ Messages:
     startDate: "2026-08-03T10:41:00Z"
     endDate: "2026-08-31T23:00:00Z"
     excludedDomains:
-	  - "ads.example.com"
+      - "ads.example.com"
       - "tracking.example.org"
     onlyOnDomain: "data-archive.staging.data-archive.ac.uk"
     isEmergency: false
-  {- message: "Emergency test message. The UK Data Archive will be closed on Monday 31 August 2026 for Summer bank holiday. Online services will run unattended during this period."
-    startDate: "#2026-08-31T23:00:00Z"
-    endDate: "2026-08-31T07:00:00Z"
+    
+  - message: "Emergency test message. The UK Data Archive will be closed on Monday 31 August 2026 for Summer bank holiday. Online services will run unattended during this period."
+    startDate: "2026-08-31T07:00:00Z"
+    endDate: "2026-08-31T23:00:00Z"
     excludedDomains: []
     onlyOnDomain: "datacatalogue.staging.data-archive.ac.uk"
-    isEmergency: true}
+    isEmergency: true
+    
