@@ -9,7 +9,7 @@ Messages:
     isEmergency: false
     
   - message: "Emergency test message. The UK Data Archive will be closed on Monday 31 August 2026 for Summer bank holiday. Online services will run unattended during this period."
-    startDate: "#2026-08-31T23:00:00Z"
+    startDate: "2026-08-31T23:00:00Z"
     endDate: "2026-08-31T07:00:00Z"
     excludedDomains: []
     onlyOnDomain: "datacatalogue.staging.data-archive.ac.uk"
