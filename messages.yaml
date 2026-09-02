@@ -8,7 +8,7 @@ Messages:
     onlyOnDomain: "data-archive.staging.data-archive.ac.uk"
     isEmergency: false
     
-  - message: "Emergency test message. The UK Data Archive will be closed on Wednesday 02 September 2026 for emergency maintenance. Online services will run unattended during this period."
+  - message: "Emergency test message. The UK Data Archive will be closed on Thursday 03 September 2026 for emergency maintenance. Online services will run unattended during this period."
     startDate: "2026-09-01T07:00:00Z"
     endDate: "2026-09-30T23:00:00Z"
     excludedDomains: []
