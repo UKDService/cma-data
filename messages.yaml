@@ -2,10 +2,8 @@ Messages:
   - message: "Example message. The UK Data Archive will be closed on Wednesday 30 September 2026 for Summer bank holiday. Online services will run unattended during this period."
     startDate: "2026-09-01T07:00:00Z"
     endDate: "2026-09-30T23:00:00Z"
-    excludedDomains:
-      - "ads.example.com"
-      - "tracking.example.org"
-    onlyOnDomain: "datacatalogue.staging.data-archive.ac.uk"
+    excludedDomains: []
+    onlyOnDomain: "data-archive.staging.data-archive.ac.uk"
     isEmergency: false
     
   - message: "Emergency test message. The UK Data Archive will be closed on Monday 31 August 2026 for Summer bank holiday. Online services will run unattended during this period."
